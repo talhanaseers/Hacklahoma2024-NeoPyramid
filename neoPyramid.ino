@@ -7,7 +7,7 @@ Start Date: Feb 10th
 
 Last Modified: Feb 11th
 
-Description: NeoPyramid is an advanced embedded systems project implemented using Arduino microcontrollers and programmed in C/C++. 
+Description: NeoPyramid is an advanced embedded systems project implemented using Arduino microcontrollers and programmed in C++. 
 This project integrates various hardware components including two servo motors, two DC motors, a buzzer pin, an OLED display, 
 and an HC-SR04 ultrasonic sensor. The primary objective of NeoPyramid is to develop a versatile robotic platform capable of executing
 complex maneuvers and tasks autonomously or under remote control. With a focus on modularity and expandability, NeoPyramid serves as 
