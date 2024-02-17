@@ -1,3 +1,21 @@
+/*
+Hackathon Project: NeoPyramid — Hacklahoma 2024, University of Oklahoma
+
+Authors: Talha Naseer, Momin, Manees, Ansuman
+
+Start Date: Feb 10th
+
+Last Modified: Feb 11th
+
+Description: NeoPyramid is an advanced embedded systems project implemented using Arduino microcontrollers and programmed in C/C++. 
+This project integrates various hardware components including two servo motors, two DC motors, a buzzer pin, an OLED display, 
+and an HC-SR04 ultrasonic sensor. The primary objective of NeoPyramid is to develop a versatile robotic platform capable of executing
+complex maneuvers and tasks autonomously or under remote control. With a focus on modularity and expandability, NeoPyramid serves as 
+a foundation for exploring advanced robotics concepts such as autonomous navigation, sensor fusion, and human-machine interaction. 
+The project's modular architecture facilitates easy integration of additional sensors and actuators, enabling customization and 
+adaptation for diverse applications ranging from educational robotics to industrial automation.
+*/
+
 #include <Servo.h>
 #include <math.h>
 #include <U8glib.h>
@@ -27,31 +45,26 @@ Servo gun_elevator;
 Servo gun_rotator;
 Servo gun_trigger;
 
-
 // pin for MOSFET to control the DC motor
 const int mosfetPin = 2;
 
-//-----------------------------------------------------------------------------> CODE BUZZER TO A0
+// CODE BUZZER TO A0
 const int buzzerPin = A0;
-//initial orientations of the servo motors
+// initial orientations of the servo motors
 int steering_pos = 180;
 int gun_elevation = 90;
 int gun_rotation = 0;
 int trigger = 90;
 
-//accn due to gravity and initial projectile velocity values
+// acceleration due to gravity and initial projectile velocity values
 double g = 9.81;
 double speed = 7.62;
 
-//keep track of no. of rubber bands loaded on the gun
+// keep track of no. of rubber bands loaded on the gun
 int mag_capacity = 2;
 
-//set normal firing range to 1m in normal mode
+// set normal firing range to 1m in normal mode
 int firing_range = 100;
-
-
-
-
 
 void setup() {
   Serial.begin(9600); // Initialize serial communication
@@ -60,20 +73,15 @@ void setup() {
   u8g.setFont(u8g_font_unifont);
   u8g.setColorIndex(1); // Set color to white
 
-  //remember to map the servos and main wheel transistors to pins here
+  // remember to map the servos and main wheel transistors to pins here
   steering.attach(4);
   gun_rotator.attach(5);
   gun_elevator.attach(6);
   gun_trigger.attach(8);
 
-
-  //buzzer pin
+  // buzzer pin
   pinMode(buzzerPin, OUTPUT);
 }
-
-
-
-
 
 void readSensorValue() {
   // Display tank ASCII art on the OLED display
@@ -85,54 +93,50 @@ void readSensorValue() {
   u8g.drawStr(0, 54, " \\            /");
   u8g.drawStr(0, 93, " \          /");
   u8g.drawStr(0, 65, "  \\(  )--(  )/ ");
-  
 }
 
 void playTone(int frequency, int duration) {
-analogWrite(buzzerPin, 128);  // 50% duty cycle (range: 0 to 255)
-delay(duration);
-analogWrite(buzzerPin, 0);    // Turn off the buzzer
+  analogWrite(buzzerPin, 128);  // 50% duty cycle (range: 0 to 255)
+  delay(duration);
+  analogWrite(buzzerPin, 0);    // Turn off the buzzer
 }
 
 void displayHello(int distance) {
   // Display distance measurement on the OLED display
-
   if (distance <= firing_range) {
     playTone(5000, 500);
-  u8g.drawStr(0, 12, "Target Detected!   ");
-  u8g.drawStr(0, 42, "  Distance to");
-  u8g.setPrintPos(0, 60); // Set the print position
-  u8g.print("  Target: ");
-  u8g.print(distance);
-  u8g.print(" cm");
-}
-
-  else {
+    u8g.drawStr(0, 12, "Target Detected!   ");
+    u8g.drawStr(0, 42, "  Distance to");
+    u8g.setPrintPos(0, 60); // Set the print position
+    u8g.print("  Target: ");
+    u8g.print(distance);
+    u8g.print(" cm");
+  } else {
     u8g.drawStr(0, 12, "Area Secure");
   }
 }
+
 // function to turn the DC motor with wheel on
 void moveWheel() {
-  digitalWrite(mosfetPin, HIGH);   //--------------------------------------------> remember to use the correctly mapped pin
-
+  digitalWrite(mosfetPin, HIGH);
 }
 
-//function to turn the DC motor with wheel off
+// function to turn the DC motor with wheel off
 void stopWheel() {
-  digitalWrite(mosfetPin, LOW);    //--------------------------------------------> remember to use the correctly mapped pin
+  digitalWrite(mosfetPin, LOW);
 }
 
 // function to rotate the gun on its own axis
 void rotateGun(int rotation_speed) {
   for (gun_rotation = 0; gun_rotation <= 345; gun_rotation += 1) {
-      gun_rotator.write(gun_rotation);
-      delay(rotation_speed);
-      }
-  delay(2*rotation_speed);
+    gun_rotator.write(gun_rotation);
+    delay(rotation_speed);
+  }
+  delay(2 * rotation_speed);
   for (gun_rotation = 345; gun_rotation >= 0; gun_rotation -= 1) {
-        gun_rotator.write(gun_rotation);
-        delay(rotation_speed);
-      }
+    gun_rotator.write(gun_rotation);
+    delay(rotation_speed);
+  }
 }
 
 // function to change the angle of elevation of the gun
@@ -153,14 +157,13 @@ void elevateGun() {
 
 // function to adjust angle of elevation depending on distance from target
 void aimGun(double range) {
-  int new_angle = int (0.5*asin(9.81*range/(speed*speed)));
+  int new_angle = int(0.5 * asin(9.81 * range / (speed * speed)));
   if (new_angle > gun_elevation) {
     for (int i = gun_elevation; i <= new_angle; i += 1) {
       gun_elevator.write(i);
       delay(8);
     }
-  }
-  else {
+  } else {
     for (int i = gun_elevation; i >= new_angle; i -= 1) {
       gun_elevator.write(i);
       delay(8);
@@ -179,21 +182,21 @@ void engageGun() {
   if (mag_capacity == 1) {
     gun_trigger.write(145);
     delay(300);
-    gun_trigger.write(90);
+    gun_trigger
+
+.write(90);
     mag_capacity -= 1;
   }
 }
 
 void turnLeft() {
   if (steering_pos > 90) {
-    for (int i = 0; i < 90; i+= 1) {
+    for (int i = 0; i < 90; i += 1) {
       steering_pos -= 1;
       steering.write(steering_pos);
       delay(15);
     }
-  }
-
-  else {
+  } else {
     for (int i = 0; i < 270; i += 1) {
       steering_pos += 1;
       steering.write(steering_pos);
@@ -203,14 +206,13 @@ void turnLeft() {
 }
 
 void turnRight() {
-    if (steering_pos < 270) {
-    for (int i = 0; i < 90; i+= 1) {
+  if (steering_pos < 270) {
+    for (int i = 0; i < 90; i += 1) {
       steering_pos += 1;
       steering.write(steering_pos);
       delay(15);
     }
-  }
-  else {
+  } else {
     for (int i = 0; i < 270; i += 1) {
       steering_pos -= 1;
       steering.write(steering_pos);
@@ -221,30 +223,25 @@ void turnRight() {
 
 void turnAround() {
   if (steering_pos <= 180) {
-    for (int i = 0; i <180; i += 1) {
+    for (int i = 0; i < 180; i += 1) {
       steering_pos += 1;
       steering.write(steering_pos);
       delay(10);
     }
-  }
-  else {
-    for (int i = 0; i <180; i += 1) {
+  } else {
+    for (int i = 0; i < 180; i += 1) {
       steering_pos -= 1;
       steering.write(steering_pos);
       delay(10);
+    }
   }
 }
+
+double toDegrees(double radians) {
+  return radians * 180 / M_PI;
 }
-double toDegrees (double radians) {
-  return radians * 180/M_PI;
-}
-
-
-
 
 void loop() {
-
-//=======================================================================================================================
   unsigned long currentTime = millis(); // Get the current time
 
   delay(3000);
@@ -269,29 +266,26 @@ void loop() {
       readSensorValue();
     } else {
       displayHello(distance);
-      
     }
   } while (u8g.nextPage());
 
   // Delay before next iteration
   delay(100); // Adjust delay if needed to control the switching speed
 
-
-//=======================================================================================================================
   // delay(1000);
   if (Serial.available() > 0) {
     char incomingChar = Serial.read(); // Read the incoming character
 
-// Going Forward (KEY: W)
-    if(incomingChar == 'W'|| incomingChar == 'w') {
-    
+    // Going Forward (KEY: W)
+    if (incomingChar == 'W' || incomingChar == 'w') {
+
       moveWheel();
       delay(15);
       rotateGun(20);
       elevateGun();
       delay(200);
     }
-// Turning Left (KEY: A)
+    // Turning Left (KEY: A)
     if (incomingChar == 'A' || incomingChar == 'a') {
       stopWheel();
       delay(15);
@@ -302,20 +296,19 @@ void loop() {
       delay(200);
     }
 
-// Stopping/Reversing (KEY: S)
+    // Stopping/Reversing (KEY: S)
     if (incomingChar == 'S' || incomingChar == 's') {
       rotateGun(20);
       elevateGun();
       if (mosfetPin == LOW) {
         turnAround();
-      }
-      else {
+      } else {
         stopWheel();
       }
       delay(200);
     }
-// Turning Left (KEY: D)
-    if(incomingChar == 'D' || incomingChar == 'd') {
+    // Turning Left (KEY: D)
+    if (incomingChar == 'D' || incomingChar == 'd') {
       stopWheel();
       delay(15);
       rotateGun(20);
@@ -325,42 +318,38 @@ void loop() {
       delay(200);
     }
 
-// Alert Mode toggle (KEY: X)
+    // Alert Mode toggle (KEY: X)
     if (incomingChar == 'X' || incomingChar == 'x') {
       if (firing_range == 100) {
         rotateGun(10);
         firing_range = 150;
-        //print 'ALERT MODE ON' on OLED screen
+        // print 'ALERT MODE ON' on OLED screen
 
-      }
-
-      else {
+      } else {
         rotateGun(20);
         firing_range = 100;
-        //print 'ALERT MODE OFF' on OLED screen
+        // print 'ALERT MODE OFF' on OLED screen
       }
       elevateGun();
       if (mosfetPin == HIGH) {
         digitalWrite(mosfetPin, HIGH);
-      }
-
-      else {
+      } else {
         digitalWrite(mosfetPin, LOW);
       }
       delay(200);
     }
 
-// Engage Feature (KEY: E)
-    if (incomingChar =='E' || incomingChar == 'e') {
+    // Engage Feature (KEY: E)
+    if (incomingChar == 'E' || incomingChar == 'e') {
       if (distance < firing_range) {
-      if (mag_capacity > 0) {
-      stopWheel();
-      aimGun(distance);
-      engageGun();
-    }
-      
-    delay(200);
-    } 
+        if (mag_capacity > 0) {
+          stopWheel();
+          aimGun(distance);
+          engageGun();
+        }
+
+        delay(200);
+      }
     }
     delay(1000);
   }
